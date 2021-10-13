@@ -53,7 +53,7 @@ R-CNN은 Image classification을 수행하는 CNN과 localization을 위한 regi
 3. 2000개의 warped image를 각각 CNN 모델에 넣는다.
 4. 각각의 Convolution 결과에 대해 classification을 진행하여 결과를 얻는다.
    
-### Region Proposal (영역 찾기)
+### 1. Region Proposal (영역 찾기)
 R-CNN은 Region Proposal을 할때 Selective search를 사용한다.
 ![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FMMlO6%2FbtqA7pEJsfi%2F4fLKHSxIkKJ8tEaFvKQ651%2Fimg.png)   
 Selective Search
@@ -67,7 +67,7 @@ Selective Search
 Selective search 알고리즘에 의해 2000개의 region proposal이 생성되면 이들을 모두 CNN에 넣기 전에
 같은 사이즈로 warp시켜야 한다. (CNN output size를 동일하게 만들기 위해)
 
-### CNN
+### 2. CNN
 ![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcVwCdl%2FbtqA9BLoE49%2FTL94t2Kdy745q9pBCYZlq0%2Fimg.png)   
 
 Warp작업을 통해 region proposal 모두 224x224 크기로 되면 CNN 모델에 넣는다.
@@ -75,7 +75,7 @@ Warp작업을 통해 region proposal 모두 224x224 크기로 되면 CNN 모델�
 최종적으로 CNN을 거쳐 각각의 region proposal로부터 4096-dimentional feature vector를 뽑아내고,
 이를 통해 고정길이의 Feature Vector를 만들어낸다.
 
-### SVM
+### 3. SVM
 
 ![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FHTaEr%2FbtqA9BxS2bV%2FkQJvYDyBDzpKY9pwVjegW1%2Fimg.png)   
 
@@ -83,5 +83,15 @@ CNN모델로부터 feature가 추출되면 Linear SVM을 통해 classification�
 위에서 설명했듯 Classifier로 softmax보다 SVM이 더 좋은 성능을 보였기 때문에 SVM을 채택했다.
 SVM은 CNN으로부터 추출된 각각의 feature vector들의 점수를 class별로 매기고, 객체인지 아닌지,
 객체라면 어떤 객체인지 등을 판별하는 역할을 하는 Classifier이다.
+
+### 3-1. Bounding Box Regression
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FLbP8c%2FbtqBaAZLZKc%2F1wxNUB5zD7XikkSoFRKtgK%2Fimg.png)   
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FtIrL9%2FbtqBfsHBlpd%2FLlKUlXZGZrZBlR3ToWxkXK%2Fimg.png)   
+
+Selective search로 만든 bounding box는 정확하지 않기 때문에 물체를 정확히 감싸도록 조정해주는
+bounding box regression(선형회귀 모델)이 존재한다.
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbZHHte%2FbtqBaBxDVWC%2FAVMf11jZOEsiSpoaK148h0%2Fimg.png)   
+bounding box regression 수식
 
 
