@@ -44,3 +44,25 @@ bin내에서 max pooling을 적용하여 각 bin마다 하나의 값을 추출�
 따라서 CNN을 통과한 feature map에서 2000개의 region proposal을 만들고 region proposal마다 SPPNet에 집어넣어 고정된 크기의 feature vector를 얻어낸다.
 이 작업을 통해 모든 2000개의 region proposal마다 해야했던 CNN연산이 1번으로 줄었다.
 
+## RoI Pooling
+
+Fast R-CNN에서 이 SPP가 적용되는 것을 보면 다음과 같다.
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FIiNzk%2FbtqA8iSURGO%2F8F29HIsdwxAd6kMUnuKuu1%2Fimg.png)   
+실제로 Fast R-CNN에서는 1개의 피라미드를 적용시킨 SPP로 구성되어있다.
+또한 피라미드의 사이즈는 7x7이다. Fast R-CNN에서 적용된 1개의 피라미드 SPP로 고정된
+크기의 feature vector를 만드는 과정을 **RoI Pooling**이라 한다.
+
+### RoI Pooling
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FoHUnL%2FbtqBc5dG1ix%2F9EWJiCVhnHoTFZQTtCckYK%2Fimg.png)   
+Fast R-CNN에서 먼저 입력 이미지를 CNN에 통과시켜 feature map을 추출한다.
+그 후 이전에 미리 Selective search로 만들어놨던 RoI(=Region proposal)을 feature map에 projection시킨다.
+위 그림의 가장 좌측 그림이 feature map이고 그 안에 *h*x*w* 크기의 검은색 box가 투영된 RoI이다.
+
+1. 미리 설정한 *H*x*W* 크기로 만들어주기 위해서 (*h*/*H*) * (*w*/*H*) 크기만큼 grid를 RoI위에 만든다.
+2. RoI를 grid크기로 split시킨 뒤 max pooling을 적용시켜 결국 각 grid 칸마다 하나의 값을 추출한다.
+
+위 작업을 통해 feature map에 투영했던 *H*x*W*크기의 RoI는 *H*x*W*크기의 고정된 feature vector로 변환된다.
+
+이렇게 RoI pooling을 이용함으로써
+원래 이미지를 CNN에 통과시켜도 FC layer의 input에 맞출 수 있게 되었다.
