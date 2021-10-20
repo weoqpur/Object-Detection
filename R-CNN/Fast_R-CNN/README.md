@@ -66,3 +66,20 @@ Fast R-CNN에서 먼저 입력 이미지를 CNN에 통과시켜 feature map을 �
 
 이렇게 RoI pooling을 이용함으로써
 원래 이미지를 CNN에 통과시켜도 FC layer의 input에 맞출 수 있게 되었다.
+
+## end-to-end : Trainable
+다음은 R-CNN의 두번째 문제였던 multi-stage pipeline으로 인해 3가지 모델을 따로 학습해야 했던 문제이다.
+R-CNN에서는 CNN을 통과한 후 각각 서로다른 모델인 SVM(classification), bounding box regression(localization)
+안으로 들어가 forward됐기 때문에 연산이 공유되지 않았다.
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcC15WF%2FbtqA57Lvbgm%2FZX3VwTFw89kc2Gbx2SKuD0%2Fimg.png)   
+
+그러나 위 그림을 다시보면 RoI Pooling을 추가함으로써 이제 RoI영역을 CNN을 거친후의 feature map에 투영시킬 수 있었다.
+따라서 동일 data가 각자 softmax(classification), box regressor(localization)으로 들어가기에 연산을 공유한다.
+이는 이제 모델이 end-to-end로 한 번에 학습시킬 수 있다는 뜻이다.
+
+### Loss function
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcUFclv%2FbtqA57Y1CWZ%2FlAVBX4FyK0dW47IhBfJNC1%2Fimg.png)   
+
+이제 Fast R-CNN의 Loss function은 위와 같이 classification과 localization loss를 합친 function으로써 한 번의 학습으로 둘 다 학습시킬 수 있다.
