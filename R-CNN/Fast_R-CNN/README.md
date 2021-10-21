@@ -75,7 +75,7 @@ R-CNN에서는 CNN을 통과한 후 각각 서로다른 모델인 SVM(classifica
 ![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcC15WF%2FbtqA57Lvbgm%2FZX3VwTFw89kc2Gbx2SKuD0%2Fimg.png)   
 
 그러나 위 그림을 다시보면 RoI Pooling을 추가함으로써 이제 RoI영역을 CNN을 거친후의 feature map에 투영시킬 수 있었다.
-따라서 동일 data가 각자 softmax(classification), box regressor(localization)으로 들어가기에 연산을 공유한다.
+따라서 동일 data가 각자 softmax(classification), bbox regressor(localization)으로 들어가기에 연산을 공유한다.
 이는 이제 모델이 end-to-end로 한 번에 학습시킬 수 있다는 뜻이다.
 
 ### Loss function
