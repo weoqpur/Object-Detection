@@ -58,4 +58,21 @@ GAP를 사용하면 input size와 관계없이 1 value로 average pooling하기�
 
 RPN의 input 값은 이전 CNN 모델에서 뽑아낸 feature map이다.
 Region proposal을 생성하기 위해 feature map위에 nxn window를 sliding window 시킨다.
-이때, object의 크기와 비율이 어떻게 될지
+이때, object의 크기와 비율이 어떻게 될지모르므로 k개의 anchor box를 미리 정의해놓는다.
+이 anchor box가 bounding box가 될 수 있는 것이고 미리 가능할만한 box모양 k개를 정의해놓는것이다.
+여기서는 가로세로길이 3종류 x 비율 3종류 = 9개의 anchor box박스를 이용한다.
+
+이 단계에서 9개의 anchor box를 이용하여 classification과 bbox regression을 먼저 구한다. (for 학습)
+먼저, CNN에서 뽑아낸 feature map에 대해 3x3 conv filter 256개를 연산하여 depth를 256으로 만든다.
+그 후 1x1 conv 두개를 이용해서 각각 classification과 bbox regression을 계산한다.
+
+이때 network를 가볍게 하기 위해 binary classification으로 bbox에 물체가 있나 없나만 판단한다.
+무슨 물체인지 판단하는 것은 마지막 classification 단계에서 한다.
+
+RPN단계에서 classification과 bbox regression을 하는 이유는 결국 학습을 위함이다.
+위 단계로 부터 positive / negative examples들을 뽑아내는데 다음 기준을 따른다.   
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FIEkcY%2FbtqBcwbZTpn%2FvSU5RjT6EBjvUkp2mtVpfk%2Fimg.png)   
+IoU가 0.7보다 크거나, 한 지점에서 모든 anchor box중 가장 IoU가 큰 anchor box는 positive example로 만든다.
+IoU가 0.3보다 작으면 object가 아닌 background를 뜻 하므로 negative example로 만들고
+이 사이에 있는 값은 애매한 값이므로 학습에 사용하지 않는다.
+
