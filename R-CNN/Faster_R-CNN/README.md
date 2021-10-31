@@ -41,3 +41,21 @@ RoI pooling을 사용하니까 RoI들의 size가 달라도 되는 것 처럼 ori
 
 "vgg의 경우 244x224, resNet의 경우 min : 600, max : 1024 등 으로 맞춰줄때 성능이 가장 좋기 때문이다."
 
+original image를 resize할때 손실되는 data가 존재 하듯이
+feature map을 RoI pooling에서 max pooling을 통해 resize할때 손실되는 data도 존재한다.
+따라서 이때 손실되는 data와 input image를 resize할때 손실되는 data 사이의 trade off가 각각 
+vgg의 경우 244x244이고, ResNet의 경우 600~1024이기에 input size를 고정시킨다.
+
+**"따라서 요즘에는 FC layer보다 GAP(Global average pooling)을 사용하는 추세이다"**
+
+GAP를 사용하면 input size와 관계없이 1 value로 average pooling하기에 filter의 개수만 정해져있으면 되기 때문이다.
+따라서 input size를 고정할 필요가 없기에 RoI pooling으로 인해 손실되는 data도 없고 original image의 size역시 
+고정시킬 필요가 없는 장점이 있다.
+
+### RPN(Region proposal network)
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcBZOij%2FbtqBgEtQ5CC%2Fsi04v7TSFdRndJyckCsxwK%2Fimg.png)   
+
+RPN의 input 값은 이전 CNN 모델에서 뽑아낸 feature map이다.
+Region proposal을 생성하기 위해 feature map위에 nxn window를 sliding window 시킨다.
+이때, object의 크기와 비율이 어떻게 될지
