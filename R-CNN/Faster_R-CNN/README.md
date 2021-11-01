@@ -92,4 +92,20 @@ NMS 전
 ![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbFQwuR%2FbtqBG0jD3nh%2FbhkdKFOk0PbkmWAh9qiDQ1%2Fimg.png)   
 NMS 후
 
+### Bounding box regression
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FwlAfS%2FbtqBdUdzIDo%2FekiUcXgksRellFXSBn5H6K%2Fimg.png)   
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FHaclG%2FbtqBdUkizUl%2FOzPRkcX2FPJPFmN8BKlzl1%2Fimg.png)   
+
+
+### Loss Function
+
+최종 Loss = (Classification Loss + Regression Loss)
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FWZhx2%2FbtqBpQ9gGSl%2FeufJfGDn01qTTJWhuzgggK%2Fimg.png)   
+
+Bounding box regression Loss
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fbpk9es%2FbtqBp5kSBLg%2FikFlnDkasgvuWjSe7a6JQK%2Fimg.png)   
+
 
