@@ -76,3 +76,20 @@ IoU가 0.7보다 크거나, 한 지점에서 모든 anchor box중 가장 IoU가 
 IoU가 0.3보다 작으면 object가 아닌 background를 뜻 하므로 negative example로 만들고
 이 사이에 있는 값은 애매한 값이므로 학습에 사용하지 않는다.
 
+### Non-Maximum Suppression
+
+Faster R-CNN에 대한 학습이 완료된 후 RPN모델을 예측시키면 한 객체당 여러 proposal값이 나올 것이다.
+이 문제를 해결하기 위해 NMS알고리즘을 사용하여 proposal의 개수를 줄인다. NMS알고리즘은 다음과 같다.
+1. box들의 score(confidence)를 기준으로 정렬한다.
+2. score가 가장 높은 box부터 시작해서 다른 모든 box들과 IoU를 계산해서 0.7이상이면 같은 객체를 detect한 box라고
+생각할 수 있기 때문에 해당 box는 지운다.
+   
+3. 최종적으로 각 object별로 score가 가장 높은 box 하나씩만 남게 된다.   
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FlAtRG%2FbtqBGgAw0Dd%2FxakhVprkQJKjnztAGjJRl1%2Fimg.png)   
+NMS 전
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbFQwuR%2FbtqBG0jD3nh%2FbhkdKFOk0PbkmWAh9qiDQ1%2Fimg.png)   
+NMS 후
+
+
