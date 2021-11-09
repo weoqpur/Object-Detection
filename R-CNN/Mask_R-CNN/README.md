@@ -78,3 +78,20 @@ maxpooling을 통해 F6을 추가로 생성한다. 최종적으로 F2, F3, F4, F
 3x3 convolution 연산을 거친 후 보낸다. F2~F5는 upsampling과 이전 feature map을 더함으로써 feature data가 조금 망가졌을 수 있기에 3x3 연산을
 한 번 더해주는 것이다.
 반면, F6은 F5에서 max pooling을 한 결과이므로 3x3연산을 하지않고 RPN에 그대로 전달된다.
+
+## RPN
+
+위 과정을 통해 생성된 F2,F3,F4,F5,F6을 각각 RPN모델에 전달하는데 Faster R-CNN과 달리 이제 각 feature map에서 1개 scale의 anchor를 생성하므로
+결국 각 pyramid feature map마다 scale 1개 x ratio 3개 = 3개의 anchor를 생성한다.   
+RPN의 동작과정은 생성하는 anchor의 개수가 달라진것 말고 모두 동일하므로 생략한다.
+
+RPN을 통해 output으로 classification 값, bbox regression값이 나오는데 이떄 bbox regression값은 delta값이다.   
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FbaabBQ%2FbtqBNjRVKv1%2Fh9pp9vQaCZiTft6ZOQbSrk%2Fimg.png)   
+
+위 그림에서의 t값들, 즉 delta값을 output으로 받게된다. 따라서 이 delta값에 anchor정보를 연산해서 원래 image에 대응되는 anchor bounding box
+좌표값으로 바꿔주게 된다. 
+
+
+
+
