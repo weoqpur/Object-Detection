@@ -92,6 +92,23 @@ RPN을 통해 output으로 classification 값, bbox regression값이 나오는�
 위 그림에서의 t값들, 즉 delta값을 output으로 받게된다. 따라서 이 delta값에 anchor정보를 연산해서 원래 image에 대응되는 anchor bounding box
 좌표값으로 바꿔주게 된다. 
 
+## Non-max-suppression
+
+원래 이미지에 anchor좌표를 대응시킨 후에는 각각 normalized coordinate로 대응시킨다.
+이는 fpn에서 이미 각기 다른 feature map크기를 갖고있기에 모두 통일되게 정규좌표계로 이동시키는 것이다.
+이렇게 수천개의 anchor box가 생성되면 NMS알고리즘을 통해 anchor의 개수를 줄인다.
+각 object마다 대응되는 anchor가 수십개 존재하는데 classification score가 높은 anchor를 제외하고 주의에 다른 anchor는 모두 지우는 것이다.
+NMS알고리즘은 anchor bbox들은 score순으로 정렬 시킨 후 score가 높은 bbox부터 다른 bbox와 IoU를 계산한다.
+이때 **IoU가 해당 bbox와 0.7이 넘어가면 두 bbox는 동일 object를 detect한 것이라 간주**하여 score가 더 낮은 bbox는 지우는 식으로 동작한다.
+
+최종적으로 각 객체당 score가 가장 큰 box만 남게되고 나머지 box는 제거한다.
+
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FPXITn%2FbtqBPYeLB97%2FDkUzLcNqCodJd9nEnhphq1%2Fimg.png)   
+NMS 전   
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FpmKJ1%2FbtqBNL8zOeZ%2FmhXKyB4bzar91loWeXDRKK%2Fimg.png)   
+NMS 후
 
 
 
