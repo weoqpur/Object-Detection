@@ -111,4 +111,16 @@ NMS 전
 NMS 후
 
 
+## RoI align
 
+기존의 Faster R-CNN에서 RoI pooling은 object detection을 위한 모델이였기에 정확한 위치 정보를 담는것이 중요핮 않았다.
+따라서 아래 그림과 같이 인접 픽셀들로 box를 이동시킨 후 pooling을 진행했다.
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcaomYA%2FbtqBRwoF99d%2FIr5ztgWvTD9Y0qy4tKmNZ1%2Fimg.png)   
+RoI pooling
+
+이렇게 RoI가 소수점 좌표를 가지면 좌표를 반올림하는 식으로 이동시킨후 pooling을 했는데 이러면 input image의 위치정보가 왜곡되기 때문에 segmentation
+에서는 문제가 된다. 따라서 bilinear interpolation을 이용해서 위치정보를 담는 RoI align을 이용한다.
+
+![`이미지`](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Frn1zn%2FbtqBS6iJfmZ%2FhGQiZeuUGQNlSKhIuwdz8k%2Fimg.png)   
+RoI align
