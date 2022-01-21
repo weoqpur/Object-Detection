@@ -1,12 +1,26 @@
 import torch
 import torch.nn as nn
 
-class ConvBlock(nn.Module):
-    def __init__(self, in_channels, out_channels):
+class FCLayer(nn.Module):
+    def __init__(self):
+        super(FCLayer, self).__init__()
         layers = list()
-        layers += [nn.Conv2d(in_channels=in_channels, out_channels=out_channels//2, kernel_size=1, stride=1)]
-        layers += [nn.Conv2d(in_channels=out_channels//2, out_channels=out_channels, kernel_size=3, stride=1,
-                             padding=1)]
+        layers += [nn.Flatten()]
+        layers += [nn.Linear(in_features=1024, out_features=4096)]
+        layers += [nn.Softmax()]
+
+        self.fc = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.fc(x)
+
+
+class ConvBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, stride, padding=0):
+        super(ConvBlock, self).__init__()
+        layers = list()
+        layers += [nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=1, stride=1, padding=padding)]
+        layers += [nn.ReLU()]
         self.conv = nn.Sequential(*layers)
 
     def forward(self, x):
@@ -16,31 +30,42 @@ class ConvBlock(nn.Module):
 class Detect(nn.Module):
     def __init__(self):
         super(Detect, self).__init__()
-        self.conv_block1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3)
+        self.conv_block1 = nn.ConvBlock(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3)
         self.max_pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv_block2 = nn.Conv2d(in_channels=64, out_channels=192, kernel_size=3, stride=1, padding=1)
+        self.conv_block2 = nn.ConvBlock(in_channels=64, out_channels=192, kernel_size=3, stride=1, padding=1)
         self.max_pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
-        self.conv_block3_1 = ConvBlock(in_channels=192, out_channels=256)
-        self.conv_block3_2 = ConvBlock(in_channels=256, out_channels=512)
+        self.conv_block3_1 = ConvBlock(in_channels=192, out_channels=128, kernel_size=1, stride=1)
+        self.conv_block3_2 = ConvBlock(in_channels=128, out_channels=256, kernel_size=3, stride=1, padding=1)
+        self.conv_block3_3 = ConvBlock(in_channels=256, out_channels=256, kernel_size=1, stride=1)
+        self.conv_block3_4 = ConvBlock(in_channels=256, out_channels=512, kernel_size=3, stride=1, padding=1)
         self.max_pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # *4
-        conv_block4 = [ConvBlock(in_channels=512, out_channels=512) for i in range(4)]
+        conv_block4 = list()
+        for i in range(4):
+            conv_block4 += [ConvBlock(in_channels=512, out_channels=256, kernel_size=1, stride=1)]
+            conv_block4 += [ConvBlock(in_channels=256, out_channels=512, kernel_size=3, stride=1, padding=1)]
+
         self.conv_block4_1 = nn.Sequential(*conv_block4)
-        self.conv_block4_2 = ConvBlock(in_channels=512, out_channels=1024)
+        self.conv_block4_2 = ConvBlock(in_channels=512, out_channels=512, kernel_size=1, stride=1)
+        self.conv_block4_3 = ConvBlock(in_channels=512, out_channels=1024, kernel_size=3, stride=1, padding=1)
         self.max_pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # *2
-        conv_block5 = [ConvBlock(in_channels=1024, out_channels=1024) for i in range(2)]
+        conv_block5 = list()
+        for i in range(4):
+            conv_block5 += [ConvBlock(in_channels=1024, out_channels=512, kernel_size=1, stride=1)]
+            conv_block5 += [ConvBlock(in_channels=512, out_channels=1024, kernel_size=3, stride=1, padding=1)]
         self.conv_block5_1 = nn.Sequential(*conv_block5)
-        self.conv_block5_2 = nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=3, stride=1, padding=1)
-        self.conv_block5_3 = nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=3, stride=2, padding=1)
+        self.conv_block5_2 = nn.ConvBlock(in_channels=1024, out_channels=1024, kernel_size=3, stride=1, padding=1)
+        self.conv_block5_3 = nn.ConvBlock(in_channels=1024, out_channels=1024, kernel_size=3, stride=2, padding=1)
 
-        self.conv_block6_1 = nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=3, stride=1, padding=1)
-        self.conv_block6_2 = nn.Conv2d(in_channels=1024, out_channels=1024, kernel_size=3, stride=1, padding=1)
+        self.conv_block6_1 = nn.ConvBlock(in_channels=1024, out_channels=1024, kernel_size=3, stride=1, padding=1)
+        self.conv_block6_2 = nn.ConvBlock(in_channels=1024, out_channels=1024, kernel_size=3, stride=1, padding=1)
 
+        self.fc = FCLayer()
     def forward(self, x):
         conv_block1 = self.conv_block1(x)
         conv_block1 = self.max_pool1(conv_block1)
@@ -50,10 +75,13 @@ class Detect(nn.Module):
 
         conv_block3 = self.conv_block3_1(conv_block2)
         conv_block3 = self.conv_block3_2(conv_block3)
+        conv_block3 = self.conv_block3_3(conv_block3)
+        conv_block3 = self.conv_block3_4(conv_block3)
         conv_block3 = self.max_pool3(conv_block3)
 
         conv_block4 = self.conv_block4_1(conv_block3)
         conv_block4 = self.conv_block4_2(conv_block4)
+        conv_block4 = self.conv_block4_3(conv_block4)
         conv_block4 = self.max_pool4(conv_block4)
 
         conv_block5 = self.conv_block5_1(conv_block4)
@@ -63,7 +91,4 @@ class Detect(nn.Module):
         conv_block6 = self.conv_block6_1(conv_block5)
         conv_block6 = self.conv_block6_2(conv_block6)
 
-        return conv_block6
-
-
-
+        return self.fc(conv_block6)
