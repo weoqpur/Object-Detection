@@ -7,6 +7,7 @@ class FCLayer(nn.Module):
         self.fc = nn.Sequential(
             nn.Flatten(),
             nn.Linear(1024 * 7 * 7, 4096),
+            nn.Dropout(0.5),
             nn.LeakyReLU(0.1),
             nn.Linear(4096, 7 * 7 * 30)
         )
@@ -72,26 +73,26 @@ class Detect(nn.Module):
     def forward(self, x):
         conv_block1 = self.conv_block1(x)
         conv_block1 = self.max_pool1(conv_block1)
-        print(conv_block1.shape)
+
         conv_block2 = self.conv_block2(conv_block1)
         conv_block2 = self.max_pool2(conv_block2)
-        print(conv_block2.shape)
+
         conv_block3 = self.conv_block3_1(conv_block2)
         conv_block3 = self.conv_block3_2(conv_block3)
         conv_block3 = self.conv_block3_3(conv_block3)
         conv_block3 = self.conv_block3_4(conv_block3)
         conv_block3 = self.max_pool3(conv_block3)
-        print(conv_block3.shape)
+
         conv_block4 = self.conv_block4_1(conv_block3)
         conv_block4 = self.conv_block4_2(conv_block4)
         conv_block4 = self.conv_block4_3(conv_block4)
         conv_block4 = self.max_pool4(conv_block4)
-        print(conv_block4.shape)
+
         conv_block5 = self.conv_block5_1(conv_block4)
         conv_block5 = self.conv_block5_2(conv_block5)
         conv_block5 = self.conv_block5_3(conv_block5)
-        print(conv_block5.shape)
+
         conv_block6 = self.conv_block6_1(conv_block5)
         conv_block6 = self.conv_block6_2(conv_block6)
-        print(conv_block6.shape)
+
         return self.fc(conv_block6)
