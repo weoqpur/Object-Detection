@@ -55,12 +55,15 @@ class Dataset(Dataset):
 
             print(i, j)
             if label_matrix[i, j, 3] == 0:
+                # obj가 존재하도록 설정
                 label_matrix[i, j, 3] = 1
 
+                # box coordinates
                 box_coordinates = torch.tensor([x_cell, y_cell, width_cell, height_cell])
 
                 label_matrix[i, j, 4:8] = box_coordinates
 
+                # class_label의 one hot encoding 설정
                 label_matrix[i, j, class_label] = 1
 
 
