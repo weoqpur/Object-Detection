@@ -15,7 +15,7 @@ from tqdm import tqdm
 from model import Detect
 from data_loader import Dataset, RandomCrop, Resize, Normalization
 from loss import YoloLoss
-from utils import load, save
+from utils import load, save, get_bboxes, mean_average_precision
 
 parser = argparse.ArgumentParser(description='Train Pix2Pix')
 parser.add_argument('--num_epochs', default=20, type=int, help='training epoch number')
@@ -82,4 +82,15 @@ for epoch in range(st_epoch, num_epochs):
         print('train epoch %04d/%04d | batch %04d/%04d | loss %.4f |' % (num_epochs, epoch, num_batch_train, batch,
                                                                          np.mean(mean_loss)))
 
+    pred_boxes, target_boxes = get_bboxes(
+        train_loader, yolo, iou_threshold=0.5, threshold=0.4
+    )
 
+    mean_avg_prec = mean_average_precision(
+        pred_boxes, target_boxes, iou_threshold=0.5, box_format="midpoint"
+    )
+    print(f"Train mAP: {mean_avg_prec}")
+
+    scheduler.step(mean_avg_prec)
+
+    save(opt.ckpt_dir, yolo, optimizer, epoch)
