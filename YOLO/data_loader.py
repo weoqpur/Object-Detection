@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 import torch
 import torch.nn as nn
+import torchvision.transforms as transforms
 from torch.utils.data.dataset import Dataset
 from PIL import Image
 from skimage.transform import resize
@@ -20,12 +21,13 @@ class Dataset(Dataset):
 
         super(Dataset, self).__init__()
         img_files = [img_file for img_file in sorted(os.listdir(file_dir)) if img_file[-4:] == '.jpg']
-        annot_files = [img_file[:-4] + '.xml' for img_file in self.img_files]
-        df = pd.concat([img_files, annot_files], axis=1)
+        annot_files = [img_file[:-4] + '.xml' for img_file in img_files]
+        images = pd.Series(img_files, name='images')
+        annots = pd.Series(annot_files, name='annots')
+        df = pd.concat([images, annots], axis=1)
         self.df = pd.DataFrame(df)
         self.file_dir = file_dir
         self.transform = transform
-        self.to_tensor = ToTensor()
 
 
     def __len__(self):
@@ -39,9 +41,11 @@ class Dataset(Dataset):
         image = Image.open(image_path)
         image = image.convert("RGB")
 
-        if self.transform:
-            image = self.transfrom(image)
-        image = self.to_tensor(image)
+        '''if self.transform:
+            image, boxes = self.transfrom(image, boxes)'''
+
+        image = transforms.Resize((448, 448))(image)
+        image = transforms.ToTensor()(image)
 
         label_matrix = torch.zeros((7, 7, 13))
         for box in boxes:
@@ -53,7 +57,6 @@ class Dataset(Dataset):
 
             width_cell, height_cell = width * 7, height * 7
 
-            print(i, j)
             if label_matrix[i, j, 3] == 0:
                 # obj가 존재하도록 설정
                 label_matrix[i, j, 3] = 1
@@ -65,7 +68,6 @@ class Dataset(Dataset):
 
                 # class_label의 one hot encoding 설정
                 label_matrix[i, j, class_label] = 1
-
 
         data = {'image': image, 'label': label_matrix}
 
@@ -180,3 +182,13 @@ class Resize(object):
             data[key] = resize(value, output_shape=(self.shape[0], self.shape[1], self.shape[2]))
 
         return data
+
+class Compose(object):
+    def __init__(self, transforms):
+        self.transforms = transforms
+
+    def __call__(self, img, bboxes):
+        for t in self.transforms:
+            img, bboxes = t(img), bboxes
+
+        return img, bboxes
