@@ -13,7 +13,7 @@ from torchvision import transforms
 from tqdm import tqdm
 
 from model import Detect
-from data_loader import Dataset, RandomCrop, Resize, Normalization
+from data_loader import Dataset, Compose
 from loss import YoloLoss
 from utils import load, save, get_bboxes, mean_average_precision
 
@@ -30,12 +30,13 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # hyper parameters
 num_epochs = opt.num_epochs
 
-transform_train = transforms.Compose([
-    Resize(shape=(448, 448, 3)),
+transform_train = Compose([
+    transforms.Resize((448, 448)),
+    transforms.ToTensor()
 ])
 
 # data loading
-train_set = Dataset('./maps/train', transform=transform_train)
+train_set = Dataset('/Users/sinmugyeol/dataset/fruit/train_zip/train', transform=transform_train)
 train_loader = DataLoader(dataset=train_set, num_workers=0, batch_size=opt.batch_size, shuffle=True)
 
 num_batch_train = int((train_set.__len__() / opt.batch_size) + ((train_set.__len__() / opt.batch_size) != 0))
@@ -45,8 +46,6 @@ if not os.path.exists(out_path):
     os.makedirs(out_path)
 
 yolo = Detect().to(device)
-
-init_weights(Detect)
 
 fn_loss = YoloLoss()
 
@@ -61,11 +60,10 @@ if opt.load_model:
     yolo, optimizer, st_epoch = load(ckpt_dir=opt.ckpt_dir, model=yolo, optim=optimizer)
 
 for epoch in range(st_epoch, num_epochs):
-    loop = tqdm(train_loader, leave=True)
     yolo.train()
     mean_loss = list()
 
-    for batch, data in enumerate(loop):
+    for batch, data in enumerate(train_loader):
         image = data['image'].to(device)
         label = data['label'].to(device)
 
@@ -76,8 +74,6 @@ for epoch in range(st_epoch, num_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-        loop.set_postfix(loss = loss.item())
 
         print('train epoch %04d/%04d | batch %04d/%04d | loss %.4f |' % (num_epochs, epoch, num_batch_train, batch,
                                                                          np.mean(mean_loss)))
