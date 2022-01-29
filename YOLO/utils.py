@@ -126,16 +126,15 @@ def cellboxes_to_boxes(out, S=7):
     return all_bboxes
 
 # yolo 훈련의 시각화 bounding box 만들기
-def get_bboxes(loader, model, iou_threshold, threshold, pred_format='cells', box_format='midpoint', decive='cpu'):
+def get_bboxes(loader, model, iou_threshold, threshold, pred_format='cells', box_format='midpoint', device='cpu'):
     all_pred_boxes = []
     all_true_boxes = []
 
-    model.evel()
     train_idx = 0
 
     for batch_idx, data in enumerate(loader):
-        x = data['image'].to(decive)
-        labels = data['label'].to(decive)
+        x = data['image'].to(device)
+        labels = data['label'].to(device)
 
         with torch.no_grad():
             predictions = model(x)
@@ -185,9 +184,9 @@ def mean_average_precision(pred_boxes, true_boxes, iou_threshold=0.5, box_format
         ground_truths = list()
 
         # 모든 예측과 대상을 살펴보고 현재 클래스 c에 속하는 예측만 추가합니다.
-        for detections in pred_boxes:
-            if detections[1] == c:
-                detections.append(detections)
+        for detection in pred_boxes:
+            if detection[1] == c:
+                detections.append(detection)
 
         for true_box in true_boxes:
             if true_box[1] == c:

@@ -9,7 +9,7 @@ class FCLayer(nn.Module):
             nn.Linear(1024 * 7 * 7, 4096),
             nn.Dropout(0.5),
             nn.LeakyReLU(0.1),
-            nn.Linear(4096, 7 * 7 * 30)
+            nn.Linear(4096, 7 * 7 * 13)
         )
 
     def forward(self, x):
